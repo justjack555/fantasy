@@ -1,10 +1,11 @@
 #!/usr/bin/env python2.7
 '''
-python server.py
+python server.py [user] [password]
 http://localhost:8111
 '''
 
 import os
+import sys
 from sqlalchemy import *
 from sqlalchemy.pool import NullPool
 from flask import Flask, request, render_template, g, redirect, Response, session
@@ -12,7 +13,7 @@ from flask import Flask, request, render_template, g, redirect, Response, sessio
 client_folder = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'client')
 app = Flask(__name__, template_folder=client_folder)
 app.secret_key = 'ABZr98j/3yX R~XHH!jmx]LWX/,7RT'
-DATABASEURI = 'postgresql://fhh2112:JustJackForrest555@35.227.79.146/proj1part2'
+DATABASEURI = 'postgresql://%s:%s@35.227.79.146/proj1part2' % (sys.argv[1], sys.argv[2])
 engine = create_engine(DATABASEURI)
 
 @app.before_request
@@ -90,16 +91,27 @@ def logout():
 	'''
 	GET: Process user logout and redirect to index page
 	'''
-	session.pop('login', None)
+	if 'login' in session:
+		session.pop('login', None)
 	return redirect('/')
 
 @app.route('/teams/', methods=['GET'])
 def teams():
 	'''
-	GET: Render the team page with team's players and stats
+	GET: Render the team page with team's player info
 	'''
 	#TODO
-	pass
+	if 'login' not in session:
+		return redirect('/login/')
+
+	#SQL QUERY
+	context = {'player_names': [], 'positions': [], 'prices': []}
+	cursor = g.conn.execute()
+	for row in cursor:
+		context['player_names'].append(row['player_name'])
+		context['positions'].append(row['position'])
+		context['prices'].append(row['price'])
+	return render_template('teams.html', **context)
 
 @app.route('/teams/claim/', methods=['POST'])
 def claim():
@@ -107,6 +119,8 @@ def claim():
 	POST: Process team claim of a player and redirect to team page
 	'''
 	#TODO
+	if 'login' not in session:
+		return redirect('/login/')
 	#check if already on team then update user's team after player was claimed
 	pass
 
@@ -116,28 +130,64 @@ def waive():
 	POST: Process team waive of a player and redirect to team page
 	'''
 	#TODO
+	if 'login' not in session:
+		return redirect('/login/')
 	#check if already not on team then update user's team after player was waived
 	pass
 
 @app.route('/players/batters/', methods=['GET'])
 def batters():
 	'''
-	GET: Render the batters page with all batters and stats
+	GET: Using arguments with player_name key, render the batters page with batter info
 	'''
-	#TODO
-	#check args for search and get list of all batters
-	#render batters template with data
-	pass
+	if 'login' not in session:
+		return redirect('/login/')
+
+	search = ''
+	if 'player_name' in request.args:
+		search = ' AND p.player_name = %s' % (request.args['player_name'])
+
+	context = {'player_names': [], 'positions': [], 'prices': [], 'atbats': [], 'averages': [], 'hits': [], 'b_walks': [], 'runs': [], 'rbis': [], 'homeruns': []}
+	cursor = g.conn.execute('SELECT * FROM players p, batters b WHERE p.player_id = b.player_id%s', search)
+	for row in cursor:
+		context['player_names'].append(row['player_name'])
+		context['positions'].append(row['player_name'])
+		context['prices'].append(row['player_name'])
+		context['atbats'].append(row['player_name'])
+		context['averages'].append(row['player_name'])
+		context['hits'].append(row['player_name'])
+		context['b_walks'].append(row['player_name'])
+		context['runs'].append(row['player_name'])
+		context['rbis'].append(row['player_name'])
+		context['homeruns'].append(row['player_name'])
+	return render_template('batters.html', **context)
 
 @app.route('/players/pitchers/', methods=['GET'])
 def pitchers():
 	'''
-	GET: Render the pitchers page with all batters and stats
+	GET: Using arguments with player_name key, render the pitchers page with pitcher info
 	'''
-	#TODO
-	#check args for search and get list of all pitchers
-	#render pitchers template with data
-	pass
+	if 'login' not in session:
+		return redirect('/login/')
+
+	search = ''
+	if 'player_name' in request.args:
+		search = ' AND p1.player_name = %s' % (request.args['player_name'])
+
+	context = {'player_names': [], 'positions': [], 'prices': [], 'innings': [], 'eras': [], 'p_walks': [], 'strikeouts': [], 'wins': [], 'losses': [], 'saves': []}
+	cursor = g.conn.execute('SELECT * FROM players p1, pitchers p2 WHERE p1.player_id = p2.player_id%s', search)
+	for row in cursor:
+		context['player_names'].append(row['player_name'])
+		context['positions'].append(row['position'])
+		context['prices'].append(row['price'])
+		context['innings'].append(row['innings'])
+		context['eras'].append(row['era'])
+		context['p_walks'].append(row['p_walks'])
+		context['strikeouts'].append(row['strikeouts'])
+		context['wins'].append(row['wins'])
+		context['losses'].append(row['losses'])
+		context['saves'].append(row['saves'])
+	return render_template('pitchers.html', **context)
 
 @app.route('/leagues/', methods=['GET'])
 def leagues():
@@ -146,6 +196,8 @@ def leagues():
 	GET: If arguments have league_name key, render the individual league page with specific league standings
 	'''
 	#TODO
+	if 'login' not in session:
+		return redirect('/login/')
 	pass
 
 @app.route('/leagues/transactions/', methods=['GET'])
@@ -154,6 +206,8 @@ def leagues_transactions():
 	GET: Using arguments with league_name key, render the league transactions page with league transactions
 	'''
 	#TODO
+	if 'login' not in session:
+		return redirect('/login/')
 	pass
 
 @app.route('/leagues/add/', methods=['POST'])
@@ -162,6 +216,8 @@ def leagues_add():
 	POST: Process league add and redirect to leagues page
 	'''
 	#TODO
+	if 'login' not in session:
+		return redirect('/login/')
 	pass
 
 @app.route('/leagues/create/', methods=['GET', 'POST'])
@@ -171,11 +227,16 @@ def leagues_create():
 	POST: Process league create and redirect to individual league page
 	'''
 	#TODO
+	if 'login' not in session:
+		return redirect('/login/')
 	pass
 
 @app.route('/leagues/modify/', methods=['POST'])
 def leagues_modify():
 	#TODO
+	if 'login' not in session:
+		return redirect('/login/')
+	pass
 
 if __name__ == '__main__':
 	import click
