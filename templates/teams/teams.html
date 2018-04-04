@@ -2,7 +2,7 @@
 {% block body %}
 <div>
     <h3>My Roster</h3>
-    <table>
+    <table border="1">
         <tr>
             <th>Player Name</th>
             <th>Position</th>
@@ -10,12 +10,13 @@
         </tr>
         {% for name in player_names %}
         <tr>
-            <td>name</td>
-            <td>positions[loop.index0]</td>
-            <td>prices[loop.index0]</td>
+            <td>{{name}}</td>
+            <td>{{positions[loop.index0]}}</td>
+            <td>{{prices[loop.index0]}}</td>
         </tr>
         {% endfor %}
     </table>
-
+    <a href="{{ url_for('batters') }}"><button>Scout other Batters</button></a>
+    <a href="{{ url_for('pitchers') }}"><button>Scout other Pitchers</button></a>
 </div>
 {% endblock %}

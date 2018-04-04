@@ -192,12 +192,12 @@ def claimed(user_id, player_id):
 #	return redirect('/teams/')
 
 
-#@app.route('/players/batters/', methods=['GET'])
-#def batters():
-'''
+@app.route('/players/batters/', methods=['GET'])
+def batters():
+	'''
 	GET: Using arguments with player_name key, render the batters page with batter info
-'''
-'''	if 'login' not in session:
+	'''
+	if 'login' not in session:
 		return redirect('/login/')
 
 	search = ''
@@ -205,27 +205,27 @@ def claimed(user_id, player_id):
 		search = ' AND p.player_name = %s' % (request.args['player_name'])
 
 	context = {'player_names': [], 'positions': [], 'prices': [], 'atbats': [], 'averages': [], 'hits': [], 'b_walks': [], 'runs': [], 'rbis': [], 'homeruns': []}
-	cursor = g.conn.execute('SELECT * FROM players p, batters b WHERE p.player_id = b.player_id%s', search)
+	cursor = g.conn.execute('SELECT * FROM players p, batters b WHERE p.player_id = b.player_id--%s', search)
 	for row in cursor:
 		context['player_names'].append(row['player_name'])
-		context['positions'].append(row['player_name'])
-		context['prices'].append(row['player_name'])
-		context['atbats'].append(row['player_name'])
-		context['averages'].append(row['player_name'])
-		context['hits'].append(row['player_name'])
-		context['b_walks'].append(row['player_name'])
-		context['runs'].append(row['player_name'])
-		context['rbis'].append(row['player_name'])
-		context['homeruns'].append(row['player_name'])
+		context['positions'].append(row['position'])
+		context['prices'].append(row['price'])
+		context['atbats'].append(row['atbats'])
+		context['averages'].append(row['average'])
+		context['hits'].append(row['hits'])
+		context['b_walks'].append(row['b_walks'])
+		context['runs'].append(row['runs'])
+		context['rbis'].append(row['rbi'])
+		context['homeruns'].append(row['homeruns'])
 	return render_template('players/batters.html', **context)
-'''
 
-# @app.route('/players/pitchers/', methods=['GET'])
-# def pitchers():
-'''
+
+@app.route('/players/pitchers/', methods=['GET'])
+def pitchers():
+	'''
 	GET: Using arguments with player_name key, render the pitchers page with pitcher info
-'''
-'''	if 'login' not in session:
+	'''
+	if 'login' not in session:
 		return redirect('/login/')
 
 	search = ''
@@ -246,7 +246,7 @@ def claimed(user_id, player_id):
 		context['losses'].append(row['losses'])
 		context['saves'].append(row['saves'])
 	return render_template('players/pitchers.html', **context)
-'''
+
 @app.route('/leagues/', methods=['GET'])
 def leagues():
 	'''

@@ -1,13 +1,35 @@
 {% extends "layout.html" %}
 {% block body %}
 <div>
-    <h3>Sign-up for Fantasy Baseball</h3>
-    <form action="{{ url_for('signup') }}" method=post class=add-user>
-        Username:<br>
-        <input type="text" name="login"><br>
-        Password:<br>
-        <input type="text" name="password"><br>
-        <input type="submit" value="Submit"><br>
-    </form>
+    <h3>Scout Batters</h3>
+    <table border="1">
+        <tr>
+            <th>Player Name</th>
+            <th>Position</th>
+            <th>Price</th>
+            <th>At Bats</th>
+            <th>Averages</th>
+            <th>Hits</th>
+            <th>Walks</th>
+            <th>Runs</th>
+            <th>RBI's</th>
+            <th>Homeruns</th>
+        </tr>
+        {% for name in player_names %}
+        <tr>
+            <td>{{name}}</td>
+            <td>{{positions[loop.index0]}}</td>
+            <td>{{prices[loop.index0]}}</td>
+            <td>{{atbats[loop.index0]}}</td>
+            <td>{{averages[loop.index0]}}</td>
+            <td>{{hits[loop.index0]}}</td>
+            <td>{{b_walks[loop.index0]}}</td>
+            <td>{{runs[loop.index0]}}</td>
+            <td>{{rbis[loop.index0]}}</td>
+            <td>{{homeruns[loop.index0]}}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    <a href="{{ url_for('teams') }}"><button>Return to My Team</button></a>
 </div>
 {% endblock %}
