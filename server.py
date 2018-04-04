@@ -14,7 +14,7 @@ from flask import Flask, request, render_template, g, redirect, Response, sessio
 #client_folder = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'client')
 app = Flask(__name__)
 app.secret_key = 'ABZr98j/3yX R~XHH!jmx]LWX/,7RT'
-DATABASEURI = 'postgresql://jr3663:JustJackForrest555@35.227.79.146/proj1part2'
+DATABASEURI = 'postgresql://%s:%s@35.227.79.146/proj1part2' % (sys.argv[3], sys.argv[4])
 engine = create_engine(DATABASEURI)
 
 @app.before_request
@@ -376,8 +376,10 @@ if __name__ == '__main__':
 	@click.option('--threaded', is_flag=True)
 	@click.argument('HOST', default='0.0.0.0')
 	@click.argument('PORT', default=8111, type=int)
-	def run(debug, threaded, host, port):
-		HOST, PORT = host, port
+	@click.argument('UNAME', default='')
+	@click.argument('PWORD', default='')
+	def run(debug, threaded, host, port, uname, pword):
+		HOST, PORT, UNAME, PWORD = host, port, uname, pword
 		print('running on %s:%d' % (HOST, PORT))
 		app.run(host=HOST, port=PORT, debug=debug, threaded=threaded)
 
