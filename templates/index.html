@@ -1,8 +1,8 @@
 {% extends "layout.html" %}
 {% block body %}
 <div>
-    <a class="btn-primary btn-large" href="{{ url_for('signup') }}" style="float: none">Sign Up for a League</a><br>
-    <a class="btn-primary btn-large" href="{{ url_for('teams') }}" style="float: none">View My Team</a><br>
-    <a class="btn-primary btn-large" href="{{ url_for('leagues') }}" style="float: none">View My Leagues</a>
+    <a href="{{ url_for('signup') }}" style="float: none"><button>Sign Up for a League</button></a><br>
+    <a href="{{ url_for('teams') }}" style="float: none"><button>View My Team</button></a><br>
+    <a href="{{ url_for('leagues') }}" style="float: none"><button>View My Leagues</button></a>
 </div>
 {% endblock %}
