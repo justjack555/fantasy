@@ -55,7 +55,7 @@ def signup():
 	      Form should contain login key and password key
 	'''
 	if request.method == 'GET':
-		return render_template('signup.html')
+		return render_template('sessions/signup.html')
 	else:
 		if 'login' in session:
 			session.pop('login', None)
@@ -64,7 +64,7 @@ def signup():
 		try:
 			g.conn.execute('INSERT INTO users VALUES (%d, %s, %s, 0)', max_user_id + 1, request.form['login'], request.form['password'])
 		except:
-			return render_template('signup.html')
+			return render_template('sessions/signup.html')
 		session['login'] = request.form['login']
 		return redirect('/teams/')
 
@@ -78,14 +78,14 @@ def login():
 	if request.method == 'GET':
 		if 'login' in session:
 			return redirect('/teams/')
-		return render_template('login.html')
+		return render_template('sessions/login.html')
 	else:
 		cursor = g.conn.execute('SELECT login, password FROM users')
 		for row in cursor:
 			if row['login'] == request.form['login'] and row['password'] == request.form['password']:
 				session['login'] = request.form['login']
 				return redirect('/teams/')
-		return render_template('login.html')
+		return render_template('sessions/login.html')
 
 @app.route('/users/logout/', methods=['GET'])
 def logout():
