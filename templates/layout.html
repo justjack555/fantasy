@@ -15,34 +15,13 @@
 </head>
 <body>
 <div>
-    <h1>Sign Up </h1>
-    <form id="inputForm">
-        First name:<br>
-        <input type="text" name="firstname"><br>
-        Last name:<br>
-        <input type="text" name="lastname"><br>
-	Team Name: <br>
-        <input type="text" name="ssn"><br>
-        Loan Amount:<br>
-        <input type="text" name="amount"><br>
-        Date of Birth: <br>
-        Month:
-        <select name='birth-month' id='monthddl'>
-            <option value=""></option>
-            <option value='1'>Jan</option>
-            <option value='2'>Feb</option>
-            <option value='3'>Mar</option>
-            <option value='4'>Apr</option>
-            <option value='5'>May</option>
-            <option value='6'>Jun</option>
-            <option value='7'>Jul</option>
-            <option value='8'>Aug</option>
-            <option value='9'>Sep</option>
-            <option value='10'>Oct</option>
-            <option value='11'>Nov</option>
-            <option value='12'>Dec</option>
-        </select>
-   </form>
+    {% if not session.logged_in %}
+    <a class="btn-primary" href="{{ url_for('login') }}" style="float: right">Log In</a>
+    {% else %}
+    <a class="btn-primary" href="{{ url_for('logout') }}" style="float: right;">Log Out</a>
+    {% endif %}
+</div>
+{% block body %}{% endblock %}
 </div>
 <script>
 </script>

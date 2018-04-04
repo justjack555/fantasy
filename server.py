@@ -11,10 +11,10 @@ from sqlalchemy import *
 from sqlalchemy.pool import NullPool
 from flask import Flask, request, render_template, g, redirect, Response, session
 
-client_folder = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'client')
-app = Flask(__name__, template_folder=client_folder)
+#client_folder = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'client')
+app = Flask(__name__)
 app.secret_key = 'ABZr98j/3yX R~XHH!jmx]LWX/,7RT'
-DATABASEURI = 'postgresql://%s:%s@35.227.79.146/proj1part2' % (sys.argv[1], sys.argv[2])
+DATABASEURI = 'postgresql://jr3663:JustJackForrest555@35.227.79.146/proj1part2'
 engine = create_engine(DATABASEURI)
 
 @app.before_request
@@ -121,13 +121,15 @@ def teams():
 			context['prices'].append(row5['price'])
 	return render_template('teams.html', **context)
 
+'''
 @app.route('/teams/claim/', methods=['POST'])
 def claim():
-	'''
+'''
+'''
 	POST: Process team claim of a player and redirect to team page
 	      Form should contain player_name key
-	'''
-	if 'login' not in session:
+'''
+'''	if 'login' not in session:
 		return redirect('/login/')
 
 	cursor = g.conn.execute('SELECT p.player_id FROM players p WHERE p.player_name = %s', request.form['player_name'])
@@ -141,8 +143,10 @@ def claim():
 			pass
 		cursor = g.conn.execute('SELECT MAX(transaction_id) FROM transactions')
 		max_transaction_id = cursor.fetchone()[0]
-		g.conn.execute('''INSERT INTO transactions VALUES (%d, %d, %s, %s, 'CLAIM')''', max_transaction_id + 1, user_id, player_id,datetime.datetime.now().strftime('%Y-%m-%d'))
-	return redirect('/teams/')
+'''
+#		g.conn.execute('''INSERT INTO transactions VALUES (%d, %d, %s, %s, 'CLAIM')''', max_transaction_id + 1, user_id, player_id,datetime.datetime.now().strftime('%Y-%m-%d'))
+#	return redirect('/teams/')
+
 
 def claimed(user_id, player_id):
 	players = []
@@ -158,12 +162,12 @@ def claimed(user_id, player_id):
 			players.append(row4['player_id'])
 	return player_id in players
 
-@app.route('/teams/waive/', methods=['POST'])
-def waive():
-	'''
+#@app.route('/teams/waive/', methods=['POST'])
+#def waive():
+'''
 	POST: Process team waive of a player and redirect to team page
-	'''
-	if 'login' not in session:
+'''
+'''	if 'login' not in session:
 		return redirect('/login/')
 
 	cursor = g.conn.execute('SELECT p.player_id FROM players p WHERE p.player_name = %s', request.form['player_name'])
@@ -173,15 +177,17 @@ def waive():
 	if claimed(user_id, player_id):
 		cursor = g.conn.execute('SELECT MAX(transaction_id) FROM transactions')
 		max_transaction_id = cursor.fetchone()[0]
-		g.conn.execute('''INSERT INTO transactions VALUES (%d, %d, %s, %s, 'WAIVE')''', max_transaction_id + 1, user_id, player_id,datetime.datetime.now().strftime('%Y-%m-%d'))
-	return redirect('/teams/')
+'''
+#		g.conn.execute('''INSERT INTO transactions VALUES (%d, %d, %s, %s, 'WAIVE')''', max_transaction_id + 1, user_id, player_id,datetime.datetime.now().strftime('%Y-%m-%d'))
+#	return redirect('/teams/')
 
-@app.route('/players/batters/', methods=['GET'])
-def batters():
-	'''
+
+#@app.route('/players/batters/', methods=['GET'])
+#def batters():
+'''
 	GET: Using arguments with player_name key, render the batters page with batter info
-	'''
-	if 'login' not in session:
+'''
+'''	if 'login' not in session:
 		return redirect('/login/')
 
 	search = ''
@@ -202,13 +208,14 @@ def batters():
 		context['rbis'].append(row['player_name'])
 		context['homeruns'].append(row['player_name'])
 	return render_template('batters.html', **context)
+'''
 
-@app.route('/players/pitchers/', methods=['GET'])
-def pitchers():
-	'''
+# @app.route('/players/pitchers/', methods=['GET'])
+# def pitchers():
+'''
 	GET: Using arguments with player_name key, render the pitchers page with pitcher info
-	'''
-	if 'login' not in session:
+'''
+'''	if 'login' not in session:
 		return redirect('/login/')
 
 	search = ''
@@ -229,7 +236,7 @@ def pitchers():
 		context['losses'].append(row['losses'])
 		context['saves'].append(row['saves'])
 	return render_template('pitchers.html', **context)
-
+'''
 @app.route('/leagues/', methods=['GET'])
 def leagues():
 	'''
@@ -297,12 +304,12 @@ def calculate_points(weights, values):
 		points += weights[stat + '_weight'] * values[stat]
 	return points
 
-@app.route('/leagues/transactions/', methods=['GET'])
-def leagues_transactions():
-	'''
+#@app.route('/leagues/transactions/', methods=['GET'])
+#def leagues_transactions():
+'''
 	GET: Using arguments with league_name key, render the league transactions page with league transactions
-	'''
-	if 'login' not in session:
+'''
+'''	if 'login' not in session:
 		return redirect('/login/')
 
 	context = {'logins': [], 'player_names': [], 'timestamps': [], 'types': []}
@@ -315,14 +322,14 @@ def leagues_transactions():
 			context['timestamps'].append(row2['timestamp'])
 			context['types'].append(row2['type'])
 	return render_template('leagues_transactions.html', **context)
-
-@app.route('/leagues/add/', methods=['POST'])
-def leagues_add():
-	'''
+'''
+#@app.route('/leagues/add/', methods=['POST'])
+#def leagues_add():
+'''
 	POST: Process league add and redirect to leagues page
 	      Form should contain league_name key
-	'''
-	if 'login' not in session:
+'''
+'''	if 'login' not in session:
 		return redirect('/login/')
 
 	cursor = g.conn.execute('SELECT u.payroll FROM users u WHERE u.user_id = %s', session['login'])
@@ -336,15 +343,15 @@ def leagues_add():
 		except:
 			pass
 	return redirect('/leagues/')
-
-@app.route('/leagues/create/', methods=['GET', 'POST'])
-def leagues_create():
-	'''
+'''
+#@app.route('/leagues/create/', methods=['GET', 'POST'])
+#def leagues_create():
+'''
 	GET: Render the create league page with static data only
 	POST: Process league create and redirect to individual league page
 	      Form should contain keys for all league values except for league_id and user_id
-	'''
-	if 'login' not in session:
+'''
+'''	if 'login' not in session:
 		return redirect('/login/')
 
 	if request.method == 'GET':
@@ -360,7 +367,7 @@ def leagues_create():
 		except:
 			pass
 		return redirect('/leagues/')
-
+'''
 if __name__ == '__main__':
 	import click
 
