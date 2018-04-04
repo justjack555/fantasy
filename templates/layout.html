@@ -15,7 +15,7 @@
 </head>
 <body>
 <div>
-    {% if not session.logged_in %}
+    {% if not session['login'] %}
     <a class="btn-primary" href="{{ url_for('login') }}" style="float: right"><button>Log In</button></a>
     {% else %}
     <a class="btn-primary" href="{{ url_for('logout') }}" style="float: right;"><button>Log Out</button></a>

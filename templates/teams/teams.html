@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+{% block body %}
+<div>
+    <h3>My Roster</h3>
+    <table>
+        <tr>
+            <th>Player Name</th>
+            <th>Position</th>
+            <th>Price</th>
+        </tr>
+        {% for name in player_names %}
+        <tr>
+            <td>name</td>
+            <td>positions[loop.index0]</td>
+            <td>prices[loop.index0]</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+</div>
+{% endblock %}

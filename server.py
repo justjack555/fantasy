@@ -60,10 +60,20 @@ def signup():
 		if 'login' in session:
 			session.pop('login', None)
 		cursor = g.conn.execute('SELECT MAX(user_id) FROM users')
-		max_user_id = cursor.fetchone()[0]
+		max_row = cursor.fetchone()
+		max_user_id = 0
+
+		# Update user id if necessary
+		if max_row is not None:
+			max_user_id = max_row[0]
+
+		print "SIGNUP: Max_user_id is: %d, for login: %s, password: %s" % (max_user_id, request.form['login'], request.form['password'])
+
 		try:
-			g.conn.execute('INSERT INTO users VALUES (%d, %s, %s, 0)', max_user_id + 1, request.form['login'], request.form['password'])
+			print "SIGNUP: Trying to add user..."
+			g.conn.execute("INSERT INTO users VALUES (?, ?, ?, ?)", (max_user_id + 1, request.form['login'], request.form['password'], 0))
 		except:
+			print "SIGNUP: Exception thrown while trying to add user..."
 			return render_template('sessions/signup.html')
 		session['login'] = request.form['login']
 		return redirect('/teams/')
@@ -107,7 +117,7 @@ def teams():
 	context = {'player_names': [], 'positions': [], 'prices': []}
 	cursor1 = g.conn.execute('SELECT u.user_id FROM users u WHERE u.login = %s', session['login'])
 	user_id = cursor1.fetchone()['user_id']
-	cursor2 = g.conn.execute('SELECT o.player_id FROM own o WHERE o.user_id = %s', user_id)
+	cursor2 = g.conn.execute('SELECT o.player_id FROM owns o WHERE o.user_id = %s', user_id)
 	for row2 in cursor2:
 		cursor3 = g.conn.execute('SELECT MAX(timestamp) FROM transactions t WHERE t.user_id = %s AND t.player_id = %s', user_id, row2['player_id'])
 		max_timestamp = cursor3.fetchone()[0]
@@ -119,7 +129,7 @@ def teams():
 			context['player_names'].append(row5['player_name'])
 			context['positions'].append(row5['position'])
 			context['prices'].append(row5['price'])
-	return render_template('teams.html', **context)
+	return render_template('teams/teams.html', **context)
 
 '''
 @app.route('/teams/claim/', methods=['POST'])
@@ -207,7 +217,7 @@ def claimed(user_id, player_id):
 		context['runs'].append(row['player_name'])
 		context['rbis'].append(row['player_name'])
 		context['homeruns'].append(row['player_name'])
-	return render_template('batters.html', **context)
+	return render_template('players/batters.html', **context)
 '''
 
 # @app.route('/players/pitchers/', methods=['GET'])
@@ -235,7 +245,7 @@ def claimed(user_id, player_id):
 		context['wins'].append(row['wins'])
 		context['losses'].append(row['losses'])
 		context['saves'].append(row['saves'])
-	return render_template('pitchers.html', **context)
+	return render_template('players/pitchers.html', **context)
 '''
 @app.route('/leagues/', methods=['GET'])
 def leagues():

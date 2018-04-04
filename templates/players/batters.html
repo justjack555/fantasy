@@ -1,0 +1,13 @@
+{% extends "layout.html" %}
+{% block body %}
+<div>
+    <h3>Sign-up for Fantasy Baseball</h3>
+    <form action="{{ url_for('signup') }}" method=post class=add-user>
+        Username:<br>
+        <input type="text" name="login"><br>
+        Password:<br>
+        <input type="text" name="password"><br>
+        <input type="submit" value="Submit"><br>
+    </form>
+</div>
+{% endblock %}
