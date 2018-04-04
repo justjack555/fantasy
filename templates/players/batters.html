@@ -2,6 +2,11 @@
 {% block body %}
 <div>
     <h3>Scout Batters</h3>
+    <form action="{{ url_for('batters') }}" method=get class=batter>
+        Search for batter:
+        <input type="text" name="player_name"><br>
+        <input type="submit" value="Submit"><br>
+    </form>
     <table border="1">
         <tr>
             <th>Player Name</th>
