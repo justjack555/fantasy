@@ -233,7 +233,7 @@ def pitchers():
 		search = ' AND p1.player_name = %s' % (request.args['player_name'])
 
 	context = {'player_names': [], 'positions': [], 'prices': [], 'innings': [], 'eras': [], 'p_walks': [], 'strikeouts': [], 'wins': [], 'losses': [], 'saves': []}
-	cursor = g.conn.execute('SELECT * FROM players p1, pitchers p2 WHERE p1.player_id = p2.player_id%s', search)
+	cursor = g.conn.execute('SELECT * FROM players p1, pitchers p2 WHERE p1.player_id = p2.player_id --%s', search)
 	for row in cursor:
 		context['player_names'].append(row['player_name'])
 		context['positions'].append(row['position'])
