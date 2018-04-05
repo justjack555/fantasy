@@ -19,6 +19,7 @@
             <th>Runs</th>
             <th>RBI's</th>
             <th>Homeruns</th>
+            <th>Options</th>
         </tr>
         {% for name in player_names %}
         <tr>
@@ -32,6 +33,10 @@
             <td>{{runs[loop.index0]}}</td>
             <td>{{rbis[loop.index0]}}</td>
             <td>{{homeruns[loop.index0]}}</td>
+            <td><form action="{{ url_for('claim') }}" method="post">
+                <input type="submit" value="{{name}}"
+                       name="player_name" />Claim
+            </form></td>
         </tr>
         {% endfor %}
     </table>

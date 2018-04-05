@@ -1,40 +1,44 @@
 {% extends "layout.html" %}
 {% block body %}
 <div>
-    <h3>Scout Pitchers</h3>
-    <form action="{{ url_for('pitchers') }}" method=get class=pitcher>
-        Search for pitcher:
-        <input type="text" name="player_name"><br>
+    <h3>Create League</h3>
+    <form action="{{ url_for('leagues_create') }}" method=post class=add-league>
+        Login:<br>
+        <input type="text" name="login"><br>
+        League Name:<br>
+        <input type="text" name="league_name"><br>
+        Max Payroll:<br>
+        <input type="text" name="max_payroll"><br>
+        At Bats Weight:<br>
+        <input type="text" name="atbats_weight"><br>
+        Average Weight:<br>
+        <input type="text" name="average_weight"><br>
+        Hits Weight:<br>
+        <input type="text" name="hits_weight"><br>
+        Batter Walks Weight:<br>
+        <input type="text" name="b_walks_weight"><br>
+        Runs Weight:<br>
+        <input type="text" name="runs_weight"><br>
+        RBI Weight:<br>
+        <input type="text" name="rbi_weight"><br>
+        Homeruns Weight:<br>
+        <input type="text" name="homeruns_weight"><br>
+        Innings Weight:<br>
+        <input type="text" name="innings_weight"><br>
+        ERA Weight:<br>
+        <input type="text" name="era_weight"><br>
+        Walks Allowed Weight:<br>
+        <input type="text" name="p_walks_weight"><br>
+        Strikeouts Weight:<br>
+        <input type="text" name="strikeouts_weight"><br>
+        Wins Weight:<br>
+        <input type="text" name="wins_weight"><br>
+        Losses Weight:<br>
+        <input type="text" name="losses_weight"><br>
+        Saves Weight:<br>
+        <input type="text" name="saves_weight"><br>
         <input type="submit" value="Submit"><br>
     </form>
-    <table border="1">
-        <tr>
-            <th>Player Name</th>
-            <th>Position</th>
-            <th>Price</th>
-            <th>Innings</th>
-            <th>ERA</th>
-            <th>Walks Allowed</th>
-            <th>Strikeouts</th>
-            <th>Wins</th>
-            <th>Losses</th>
-            <th>Saves</th>
-        </tr>
-        {% for name in player_names %}
-        <tr>
-            <td>{{name}}</td>
-            <td>{{positions[loop.index0]}}</td>
-            <td>{{prices[loop.index0]}}</td>
-            <td>{{innings[loop.index0]}}</td>
-            <td>{{eras[loop.index0]}}</td>
-            <td>{{p_walks[loop.index0]}}</td>
-            <td>{{strikeouts[loop.index0]}}</td>
-            <td>{{wins[loop.index0]}}</td>
-            <td>{{losses[loop.index0]}}</td>
-            <td>{{saves[loop.index0]}}</td>
-        </tr>
-        {% endfor %}
-    </table>
-    <a href="{{ url_for('teams') }}"><button>Return to My Team</button></a>
+    <a href="{{ url_for('leagues') }}"><button>Return to My Leagues</button></a>
 </div>
 {% endblock %}

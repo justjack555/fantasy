@@ -15,6 +15,17 @@
         </tr>
         {% endfor %}
     </table>
-    <!--<a href="{{ url_for('teams') }}"><button>View Interesting Leagues</button></a> -->
+    <a href="{{ url_for('leagues_create') }}"><button>Create New League</button></a>
+    <h3>All Leagues</h3>
+    <table border="1">
+        <tr>
+            <th>League Name</th>
+            <th>Options</th>
+        </tr>
+        <tr>
+            <td>Figure</td>
+            <td>Out</td>
+        </tr>
+    </table>
 </div>
 {% endblock %}

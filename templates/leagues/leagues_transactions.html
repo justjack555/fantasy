@@ -1,40 +1,26 @@
 {% extends "layout.html" %}
 {% block body %}
 <div>
-    <h3>Scout Pitchers</h3>
-    <form action="{{ url_for('pitchers') }}" method=get class=pitcher>
-        Search for pitcher:
-        <input type="text" name="player_name"><br>
-        <input type="submit" value="Submit"><br>
-    </form>
+    <h3>League Transactions</h3>
     <table border="1">
         <tr>
+            <th>User Name</th>
             <th>Player Name</th>
-            <th>Position</th>
-            <th>Price</th>
-            <th>Innings</th>
-            <th>ERA</th>
-            <th>Walks Allowed</th>
-            <th>Strikeouts</th>
-            <th>Wins</th>
-            <th>Losses</th>
-            <th>Saves</th>
+            <th>Timestamp</th>
+            <th>Type</th>
         </tr>
-        {% for name in player_names %}
+        {% for user in logins %}
         <tr>
-            <td>{{name}}</td>
-            <td>{{positions[loop.index0]}}</td>
-            <td>{{prices[loop.index0]}}</td>
-            <td>{{innings[loop.index0]}}</td>
-            <td>{{eras[loop.index0]}}</td>
-            <td>{{p_walks[loop.index0]}}</td>
-            <td>{{strikeouts[loop.index0]}}</td>
-            <td>{{wins[loop.index0]}}</td>
-            <td>{{losses[loop.index0]}}</td>
-            <td>{{saves[loop.index0]}}</td>
+            <td>{{user}}</td>
+            <td>{{player_names[loop.index0]}}</td>
+            <td>{{timestamps[loop.index0]}}</td>
+            <td>{{types[loop.index0]}}</td>
         </tr>
         {% endfor %}
-    </table>
-    <a href="{{ url_for('teams') }}"><button>Return to My Team</button></a>
+    </table><br>
+    <form action="{{ url_for('leagues') }}" method="get">
+        <input type="submit" value="{{league}}"
+               name="league_name" /> Return to League
+    </form>
 </div>
 {% endblock %}

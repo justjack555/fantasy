@@ -131,33 +131,6 @@ def teams():
 			context['prices'].append(row5['price'])
 	return render_template('teams/teams.html', **context)
 
-'''
-@app.route('/teams/claim/', methods=['POST'])
-def claim():
-'''
-'''
-	POST: Process team claim of a player and redirect to team page
-	      Form should contain player_name key
-'''
-'''	if 'login' not in session:
-		return redirect('/users/login/')
-
-	cursor = g.conn.execute('SELECT p.player_id FROM players p WHERE p.player_name = %s', request.form['player_name'])
-	player_id = cursor.fetchone()['player_id']
-	cursor = g.conn.execute('SELECT u.user_id FROM users u WHERE u.login = %s', session['login'])
-	user_id = cursor.fetchone()['user_id']
-	if not claimed(user_id, player_id):
-		try:
-			g.conn.execute('INSERT INTO owns VALUES (%d, %s)', user_id, player_id)
-		except:
-			pass
-		cursor = g.conn.execute('SELECT MAX(transaction_id) FROM transactions')
-		max_transaction_id = cursor.fetchone()[0]
-'''
-#		g.conn.execute('''INSERT INTO transactions VALUES (%d, %d, %s, %s, 'CLAIM')''', max_transaction_id + 1, user_id, player_id,datetime.datetime.now().strftime('%Y-%m-%d'))
-#	return redirect('/teams/')
-
-
 def claimed(user_id, player_id):
 	players = []
 	cursor1 = g.conn.execute('SELECT o.player_id FROM own o WHERE o.user_id = %s', user_id)
@@ -171,6 +144,34 @@ def claimed(user_id, player_id):
 			row4 = cursor4.fetchone()
 			players.append(row4['player_id'])
 	return player_id in players
+
+@app.route('/teams/claim/', methods=['POST'])
+def claim():
+
+	'''
+	POST: Process team claim of a player and redirect to team page
+	      Form should contain player_name key
+	'''
+	if 'login' not in session:
+		return redirect('/users/login/')
+
+	cursor = g.conn.execute('SELECT p.player_id FROM players p WHERE p.player_name = %s', request.form['player_name'])
+	player_id = cursor.fetchone()['player_id']
+	cursor = g.conn.execute('SELECT u.user_id FROM users u WHERE u.login = %s', session['login'])
+	user_id = cursor.fetchone()['user_id']
+	if not claimed(user_id, player_id):
+		try:
+			g.conn.execute('INSERT INTO owns VALUES (%d, %s)', user_id, player_id)
+		except:
+			pass
+		cursor = g.conn.execute('SELECT MAX(transaction_id) FROM transactions')
+		max_transaction_id = cursor.fetchone()[0]
+
+		g.conn.execute('INSERT INTO transactions VALUES (%d, %d, %s, %s, CLAIM)', max_transaction_id + 1, user_id, player_id,datetime.datetime.now().strftime('%Y-%m-%d'))
+	return redirect('/teams/')
+
+
+
 
 #@app.route('/teams/waive/', methods=['POST'])
 #def waive():
@@ -280,8 +281,9 @@ def leagues():
 		cursor2 = g.conn.execute('SELECT p.user_id FROM plays p WHERE p.league_id = %s', row1['league_id'])
 		for row2 in cursor2:
 			#for each user_id
+			context['logins'].append(row2['user_id'])
 			points = 0
-			cursor3 = g.conn.execute('SELECT o.player_id FROM own o WHERE o.user_id = %s', row1['user_id'])
+			cursor3 = g.conn.execute('SELECT o.player_id FROM own o WHERE o.user_id = %s', row2['user_id'])
 			for row3 in cursor3:
 				#for each player_id
 				cursor4 = g.conn.execute('SELECT MAX(timestamp) FROM transactions t WHERE t.user_id = %s AND t.player_id = %s', row2['user_id'], row3['player_id'])
@@ -314,12 +316,12 @@ def calculate_points(weights, values):
 		points += weights[stat + '_weight'] * values[stat]
 	return points
 
-#@app.route('/leagues/transactions/', methods=['GET'])
-#def leagues_transactions():
-'''
+@app.route('/leagues/transactions/', methods=['GET'])
+def leagues_transactions():
+	'''
 	GET: Using arguments with league_name key, render the league transactions page with league transactions
-'''
-'''	if 'login' not in session:
+	'''
+	if 'login' not in session:
 		return redirect('/users/login/')
 
 	context = {'logins': [], 'player_names': [], 'timestamps': [], 'types': []}
@@ -332,7 +334,7 @@ def calculate_points(weights, values):
 			context['timestamps'].append(row2['timestamp'])
 			context['types'].append(row2['type'])
 	return render_template('leagues/leagues_transactions.html', **context)
-'''
+
 #@app.route('/leagues/add/', methods=['POST'])
 #def leagues_add():
 '''
@@ -354,14 +356,14 @@ def calculate_points(weights, values):
 			pass
 	return redirect('/leagues/')
 '''
-#@app.route('/leagues/create/', methods=['GET', 'POST'])
-#def leagues_create():
-'''
+@app.route('/leagues/create/', methods=['GET', 'POST'])
+def leagues_create():
+	'''
 	GET: Render the create league page with static data only
 	POST: Process league create and redirect to individual league page
 	      Form should contain keys for all league values except for league_id and user_id
-'''
-'''	if 'login' not in session:
+	'''
+	if 'login' not in session:
 		return redirect('/users/login/')
 
 	if request.method == 'GET':
@@ -372,12 +374,12 @@ def calculate_points(weights, values):
 		cursor = g.conn.execute('SELECT u.user_id FROM users u WHERE u.login = %s', session['login'])
 		user_id = cursor.fetchone()[0]
 		try:
-			g.conn.execute('INSERT INTO leagues VALUES (%d, %d, %s, %s, %d, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f)', max_league_id + 1, request.form['login'], request.form['league_name'], request.form['max_payroll'], request.form['atbats_weight'], , request.form['average_weight'], request.form['hits_weight'], request.form['b_walks_weight'], request.form['runs_weight'], request.form['rbi_weight'], request.form['homeruns_weight'], request.form['innings_weight'], request.form['era_weight'], request.form['p_walks_weight'], request.form['strikeouts_weight'], request.form['wins_weight'], request.form['losses_weight'], request.form['saves_weight'])
+			g.conn.execute('INSERT INTO leagues VALUES (%d, %d, %s, %s, %d, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f)', max_league_id + 1, request.form['login'], request.form['league_name'], request.form['max_payroll'], request.form['atbats_weight'],  request.form['average_weight'], request.form['hits_weight'], request.form['b_walks_weight'], request.form['runs_weight'], request.form['rbi_weight'], request.form['homeruns_weight'], request.form['innings_weight'], request.form['era_weight'], request.form['p_walks_weight'], request.form['strikeouts_weight'], request.form['wins_weight'], request.form['losses_weight'], request.form['saves_weight'])
 			g.conn.execute('INSERT INTO plays VALUES (%d, %d)', session['login'], max_league_id + 1)
 		except:
 			pass
 		return redirect('/leagues/')
-'''
+
 if __name__ == '__main__':
 	import click
 
