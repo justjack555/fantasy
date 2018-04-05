@@ -112,7 +112,7 @@ def teams():
 	GET: Render the team page with team's player info
 	'''
 	if 'login' not in session:
-		return redirect('/login/')
+		return redirect('/users/login/')
 
 	context = {'player_names': [], 'positions': [], 'prices': []}
 	cursor1 = g.conn.execute('SELECT u.user_id FROM users u WHERE u.login = %s', session['login'])
@@ -140,7 +140,7 @@ def claim():
 	      Form should contain player_name key
 '''
 '''	if 'login' not in session:
-		return redirect('/login/')
+		return redirect('/users/login/')
 
 	cursor = g.conn.execute('SELECT p.player_id FROM players p WHERE p.player_name = %s', request.form['player_name'])
 	player_id = cursor.fetchone()['player_id']
@@ -178,7 +178,7 @@ def claimed(user_id, player_id):
 	POST: Process team waive of a player and redirect to team page
 '''
 '''	if 'login' not in session:
-		return redirect('/login/')
+		return redirect('/users/login/')
 
 	cursor = g.conn.execute('SELECT p.player_id FROM players p WHERE p.player_name = %s', request.form['player_name'])
 	player_id = cursor.fetchone()['player_id']
@@ -198,7 +198,7 @@ def batters():
 	GET: Using arguments with player_name key, render the batters page with batter info
 	'''
 	if 'login' not in session:
-		return redirect('/login/')
+		return redirect('/users/login/')
 
 	search = ''
 	if 'player_name' in request.args:
@@ -226,7 +226,7 @@ def pitchers():
 	GET: Using arguments with player_name key, render the pitchers page with pitcher info
 	'''
 	if 'login' not in session:
-		return redirect('/login/')
+		return redirect('/users/login/')
 
 	search = ''
 	if 'player_name' in request.args:
@@ -254,7 +254,7 @@ def leagues():
 	GET: If arguments do not have league_name key, render the leagues page with list of user's leagues
 	'''
 	if 'login' not in session:
-		return redirect('/login/')
+		return redirect('/users/login/')
 
 	if 'league_name' in request.args:
 		context = {'logins': [], 'points': []}
@@ -299,13 +299,13 @@ def leagues():
 					if row7:
 						points += calculate_points(row7, row1)
 			context['points'].append(points)
-		return render_template('league.html', **context)
+		return render_template('leagues/league.html', **context)
 	else:
 		context = {'league_names': []}
 		cursor = g.conn.execute('SELECT l.league_name FROM users u, plays p, leagues l WHERE u.user_id = p.user_id AND p.league_id = l.league_id')
 		for row in cursor:
 			context['league_names'].append(row['league_name'])
-		return render_template('leagues.html', **context)
+		return render_template('leagues/leagues.html', **context)
 
 def calculate_points(weights, values):
 	points = 0
@@ -320,7 +320,7 @@ def calculate_points(weights, values):
 	GET: Using arguments with league_name key, render the league transactions page with league transactions
 '''
 '''	if 'login' not in session:
-		return redirect('/login/')
+		return redirect('/users/login/')
 
 	context = {'logins': [], 'player_names': [], 'timestamps': [], 'types': []}
 	cursor1 = g.conn.execute('SELECT p.user_id FROM plays p WHERE p.league_id = %s', request.args['league_name'])
@@ -331,7 +331,7 @@ def calculate_points(weights, values):
 			context['player_names'].append(row2['player_name'])
 			context['timestamps'].append(row2['timestamp'])
 			context['types'].append(row2['type'])
-	return render_template('leagues_transactions.html', **context)
+	return render_template('leagues/leagues_transactions.html', **context)
 '''
 #@app.route('/leagues/add/', methods=['POST'])
 #def leagues_add():
@@ -340,7 +340,7 @@ def calculate_points(weights, values):
 	      Form should contain league_name key
 '''
 '''	if 'login' not in session:
-		return redirect('/login/')
+		return redirect('/users/login/')
 
 	cursor = g.conn.execute('SELECT u.payroll FROM users u WHERE u.user_id = %s', session['login'])
 	payroll = cursor.fetchone()[0]
@@ -362,10 +362,10 @@ def calculate_points(weights, values):
 	      Form should contain keys for all league values except for league_id and user_id
 '''
 '''	if 'login' not in session:
-		return redirect('/login/')
+		return redirect('/users/login/')
 
 	if request.method == 'GET':
-		return render_template('leagues_create.html')
+		return render_template('leagues/leagues_create.html')
 	else:
 		cursor = g.conn.execute('SELECT MAX(league_id) FROM leagues')
 		max_league_id = cursor.fetchone()[0]
