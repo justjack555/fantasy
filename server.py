@@ -118,6 +118,7 @@ def teams():
 		max_timestamp = cursor3.fetchone()[0]
 		cursor4 = g.conn.execute('''SELECT t.player_id FROM transactions t WHERE t.user_id = %s AND t.type = 'CLAIM' AND t.timestamp = %s''', user_id, max_timestamp)
 		row4 = cursor4.fetchone()
+		print('row4:', row4)
 		if row4:
 			cursor5 = g.conn.execute('SELECT * FROM players p WHERE p.player_id = %s', row4['player_id'])
 			row5 = cursor5.fetchone()
@@ -140,6 +141,15 @@ def claimed(user_id, player_id):
 			players.append(row4['player_id'])
 	return player_id in players
 
+def budget(payroll, user_id):
+	cursor = g.conn.execute('SELECT l.max_payroll FROM leagues l, plays p, users u WHERE p.league_id = l.league_id AND p.user_id = u.user_id AND u.user_id = %s', user_id)
+	for row in cursor:
+		if payroll > row['max_payroll']:
+			print('TOO EXPENSIVE')
+			return False
+	return True
+	
+
 @app.route('/teams/claim/', methods=['POST'])
 def claim():
 
@@ -155,20 +165,24 @@ def claim():
 	cursor = g.conn.execute('SELECT u.user_id FROM users u WHERE u.login = %s', session['login'])
 	user_id = cursor.fetchone()['user_id']
 	if not claimed(user_id, player_id):
-		try:
-			g.conn.execute('INSERT INTO owns VALUES (%s, %s)', user_id, player_id)
-		except Exception as e:
-			pass
-		cursor = g.conn.execute('SELECT MAX(transaction_id) FROM transactions')
-		row = cursor.fetchone()
-		transaction_id = row[0] + 1 if row[0] is not None else 0
-		print('max_transaction_id:', transaction_id)
-		print(type(transaction_id))
-		try:
-			g.conn.execute('''INSERT INTO transactions VALUES (%s, %s, %s, %s, 'CLAIM')''', transaction_id, user_id, player_id, datetime.datetime.now().strftime('%Y-%m-%d'))
-		except Exception as e:
-			print(e)
+		price = g.conn.execute('SELECT p.price FROM players p WHERE p.player_id = %s', player_id).fetchone()[0]
+		payroll = g.conn.execute('SELECT u.payroll FROM users u WHERE u.user_id = %s', user_id).fetchone()[0]
+		payroll += price
+		if budget(payroll, user_id):
+			try:
+				g.conn.execute('INSERT INTO owns VALUES (%s, %s)', user_id, player_id)
+			except Exception as e:
+				pass
+			cursor = g.conn.execute('SELECT MAX(transaction_id) FROM transactions')
+			row = cursor.fetchone()
+			transaction_id = row[0] + 1 if row[0] is not None else 0
+			try:
+				g.conn.execute('''INSERT INTO transactions VALUES (%s, %s, %s, %s, 'CLAIM')''', transaction_id, user_id, player_id, datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+				g.conn.execute('UPDATE users SET payroll = %s WHERE user_id = %s', payroll, user_id)
+			except Exception as e:
+				print(e)
 	return redirect('/teams/')
+
 
 
 

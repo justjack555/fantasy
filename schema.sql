@@ -94,7 +94,7 @@ CREATE TABLE transactions(
 	transaction_id integer,
 	user_id integer NOT NULL,
 	player_id varchar(10) NOT NULL,
-	timestamp varchar(10),
+	timestamp varchar(20),
 	type varchar(5) CHECK (type = 'CLAIM' OR type = 'WAIVE'),
 	PRIMARY KEY (transaction_id),
 	FOREIGN KEY (user_id, player_id) REFERENCES owns ON DELETE CASCADE
