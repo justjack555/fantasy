@@ -24,7 +24,8 @@ def before_request():
 	'''
 	try:
 		g.conn = engine.connect()
-	except:
+	except Exception as e:
+		print(e)
 		print('Error connecting to database.')
 		import traceback
 		traceback.print_exc()
@@ -60,21 +61,15 @@ def signup():
 		if 'login' in session:
 			session.pop('login', None)
 		cursor = g.conn.execute('SELECT MAX(user_id) FROM users')
-		max_row = cursor.fetchone()
-		max_user_id = 0
-
-		# Update user id if necessary
-		if max_row is not None:
-			max_user_id = max_row[0]
-
-		print "SIGNUP: Max_user_id is: %d, for login: %s, password: %s" % (max_user_id, request.form['login'], request.form['password'])
+		row = cursor.fetchone()
+		max_user_id = row[0] if row is not None else 0
 
 		try:
-			print "SIGNUP: Trying to add user..."
-			g.conn.execute("INSERT INTO users VALUES (?, ?, ?, ?)", (max_user_id + 1, request.form['login'], request.form['password'], 0))
-		except:
-			print "SIGNUP: Exception thrown while trying to add user..."
+			g.conn.execute('INSERT INTO users VALUES (%s, %s, %s, %s)', max_user_id + 1, request.form['login'], request.form['password'], 0)
+		except Exception as e:
+			print(e)
 			return render_template('sessions/signup.html')
+
 		session['login'] = request.form['login']
 		return redirect('/teams/')
 
@@ -162,7 +157,8 @@ def claim():
 	if not claimed(user_id, player_id):
 		try:
 			g.conn.execute('INSERT INTO owns VALUES (%d, %s)', user_id, player_id)
-		except:
+		except Exception as e:
+			print(e)
 			pass
 		cursor = g.conn.execute('SELECT MAX(transaction_id) FROM transactions')
 		max_transaction_id = cursor.fetchone()[0]
@@ -352,7 +348,8 @@ def leagues_transactions():
 	if payroll <= max_payroll:
 		try:
 			g.conn.execute('INSERT INTO plays VALUES (%d, %d)', session['login'], league_id)
-		except:
+		except Exception as e:
+			print(e)
 			pass
 	return redirect('/leagues/')
 '''
@@ -376,7 +373,8 @@ def leagues_create():
 		try:
 			g.conn.execute('INSERT INTO leagues VALUES (%d, %d, %s, %s, %d, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f)', max_league_id + 1, request.form['login'], request.form['league_name'], request.form['max_payroll'], request.form['atbats_weight'],  request.form['average_weight'], request.form['hits_weight'], request.form['b_walks_weight'], request.form['runs_weight'], request.form['rbi_weight'], request.form['homeruns_weight'], request.form['innings_weight'], request.form['era_weight'], request.form['p_walks_weight'], request.form['strikeouts_weight'], request.form['wins_weight'], request.form['losses_weight'], request.form['saves_weight'])
 			g.conn.execute('INSERT INTO plays VALUES (%d, %d)', session['login'], max_league_id + 1)
-		except:
+		except Exception as e:
+			print(e)
 			pass
 		return redirect('/leagues/')
 

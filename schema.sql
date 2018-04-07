@@ -86,7 +86,7 @@ CREATE TABLE plays(
 	league_id integer,
 	PRIMARY KEY (user_id, league_id),
 	FOREIGN KEY (user_id) REFERENCES users ON DELETE CASCADE,
-	FOREIGN KEY (league_id) REFERENCES league_creates ON DELETE CASCADE
+	FOREIGN KEY (league_id) REFERENCES leagues ON DELETE CASCADE
 );
 
 DROP TABLE IF EXISTS transactions;
