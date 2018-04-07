@@ -278,6 +278,8 @@ def leagues():
 		context = {'logins': [], 'points': []}
 		cursor1 = g.conn.execute('SELECT * FROM leagues l WHERE l.league_name = %s', request.args['league_name'])
 		row1 = cursor1.fetchone()
+		if row1 is None:
+			return redirect('/leagues/')
 		context['league_name'] = row1['league_name']
 		context['max_payroll'] = row1['max_payroll']
 		context['atbats_weight'] = row1['atbats_weight']
@@ -300,7 +302,7 @@ def leagues():
 			#for each user_id
 			context['logins'].append(row2['user_id'])
 			points = 0
-			cursor3 = g.conn.execute('SELECT o.player_id FROM own o WHERE o.user_id = %s', row2['user_id'])
+			cursor3 = g.conn.execute('SELECT o.player_id FROM owns o WHERE o.user_id = %s', row2['user_id'])
 			for row3 in cursor3:
 				#for each player_id
 				cursor4 = g.conn.execute('SELECT MAX(timestamp) FROM transactions t WHERE t.user_id = %s AND t.player_id = %s', row2['user_id'], row3['player_id'])
@@ -312,11 +314,11 @@ def leagues():
 					cursor6 = g.conn.execute('SELECT * FROM batters b WHERE b.player_id = %s', row5['player_id'])
 					row6 = cursor6.fetchone()
 					if row6:
-						points += calculate_points(row6, row1)
+						points += calculate_points(row1, row6)
 					cursor7 = g.conn.execute('SELECT * FROM pitchers p WHERE p.player_id = %s', row5['player_id'])
 					row7 = cursor7.fetchone()
 					if row7:
-						points += calculate_points(row7, row1)
+						points += calculate_points(row1, row7)
 			context['points'].append(points)
 		return render_template('leagues/league.html', **context)
 	else:
@@ -336,7 +338,10 @@ def calculate_points(weights, values):
 	points = 0
 	stats = ['atbats', 'average', 'hits', 'b_walks', 'runs', 'rbi', 'homeruns', 'innings', 'era', 'p_walks', 'strikeouts', 'wins', 'losses', 'saves']
 	for stat in stats:
-		points += weights[stat + '_weight'] * values[stat]
+		try:
+			points += weights[stat + '_weight'] * values[stat]
+		except Exception as e:
+			continue
 	return points
 
 @app.route('/leagues/transactions/', methods=['GET'])
@@ -358,28 +363,29 @@ def leagues_transactions():
 			context['types'].append(row2['type'])
 	return render_template('leagues/leagues_transactions.html', **context)
 
-#@app.route('/leagues/add/', methods=['POST'])
-#def leagues_add():
-'''
+@app.route('/leagues/add/', methods=['POST'])
+def leagues_add():
+	'''
 	POST: Process league add and redirect to leagues page
 	      Form should contain league_name key
-'''
-'''	if 'login' not in session:
+	'''
+	if 'login' not in session:
 		return redirect('/users/login/')
 
-	cursor = g.conn.execute('SELECT u.payroll FROM users u WHERE u.user_id = %s', session['login'])
+	cursor = g.conn.execute('SELECT u.user_id FROM users u WHERE u.login = %s', session['login'])
+	user_id = cursor.fetchone()['user_id']
+	cursor = g.conn.execute('SELECT u.payroll FROM users u WHERE u.user_id = %s', user_id)
 	payroll = cursor.fetchone()[0]
 	cursor = g.conn.execute('SELECT l.league_id, l.max_payroll FROM leagues l WHERE l.league_name = %s', request.form['league_name'])
 	league_id = cursor.fetchone()['league_id']
 	max_payroll = cursor.fetchone()['max_payroll']
 	if payroll <= max_payroll:
 		try:
-			g.conn.execute('INSERT INTO plays VALUES (%s, %s)', session['login'], league_id)
+			g.conn.execute('INSERT INTO plays VALUES (%s, %s)', user_id, league_id)
 		except Exception as e:
-			print(e)
 			pass
 	return redirect('/leagues/')
-'''
+
 @app.route('/leagues/create/', methods=['GET', 'POST'])
 def leagues_create():
 	'''
@@ -393,13 +399,14 @@ def leagues_create():
 	if request.method == 'GET':
 		return render_template('leagues/leagues_create.html')
 	else:
-		cursor = g.conn.execute('SELECT MAX(league_id) FROM leagues')
-		max_league_id = cursor.fetchone()[0]
 		cursor = g.conn.execute('SELECT u.user_id FROM users u WHERE u.login = %s', session['login'])
-		user_id = cursor.fetchone()[0]
+		user_id = cursor.fetchone()['user_id']
+		cursor = g.conn.execute('SELECT MAX(league_id) FROM leagues')
+		row = cursor.fetchone()
+		league_id = row[0] + 1 if row[0] is not None else 0
 		try:
-			g.conn.execute('INSERT INTO leagues VALUES (%s, %s, %s, %s, %s, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f)', max_league_id + 1, request.form['login'], request.form['league_name'], request.form['max_payroll'], request.form['atbats_weight'],  request.form['average_weight'], request.form['hits_weight'], request.form['b_walks_weight'], request.form['runs_weight'], request.form['rbi_weight'], request.form['homeruns_weight'], request.form['innings_weight'], request.form['era_weight'], request.form['p_walks_weight'], request.form['strikeouts_weight'], request.form['wins_weight'], request.form['losses_weight'], request.form['saves_weight'])
-			g.conn.execute('INSERT INTO plays VALUES (%s, %s)', session['login'], max_league_id + 1)
+			g.conn.execute('INSERT INTO leagues VALUES (%s, %s, %s, %s, %s, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f)', max_league_id, request.form['login'], request.form['league_name'], request.form['max_payroll'], request.form['atbats_weight'],  request.form['average_weight'], request.form['hits_weight'], request.form['b_walks_weight'], request.form['runs_weight'], request.form['rbi_weight'], request.form['homeruns_weight'], request.form['innings_weight'], request.form['era_weight'], request.form['p_walks_weight'], request.form['strikeouts_weight'], request.form['wins_weight'], request.form['losses_weight'], request.form['saves_weight'])
+			g.conn.execute('INSERT INTO plays VALUES (%s, %s)', user_id, league_id)
 		except Exception as e:
 			print(e)
 			pass

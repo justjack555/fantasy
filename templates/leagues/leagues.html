@@ -6,7 +6,7 @@
         <tr>
             <th>League Name</th>
         </tr>
-        {% for league in league_names %}
+        {% for league in user_league_names %}
         <tr>
             <td><form action="{{ url_for('leagues') }}" method="get">
                 <input type="submit" value="{{league}}"
