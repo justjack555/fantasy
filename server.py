@@ -320,10 +320,16 @@ def leagues():
 			context['points'].append(points)
 		return render_template('leagues/league.html', **context)
 	else:
-		context = {'league_names': []}
-		cursor = g.conn.execute('SELECT l.league_name FROM users u, plays p, leagues l WHERE u.user_id = p.user_id AND p.league_id = l.league_id')
+		cursor = g.conn.execute('SELECT u.user_id FROM users u WHERE u.login = %s', session['login'])
+		user_id = cursor.fetchone()['user_id']
+		
+		context = {'user_league_names': [], 'all_league_names': []}
+		cursor = g.conn.execute('SELECT l.league_name FROM users u, plays p, leagues l WHERE u.user_id = p.user_id AND p.league_id = l.league_id AND u.user_id = %s', user_id)
 		for row in cursor:
-			context['league_names'].append(row['league_name'])
+			context['user_league_names'].append(row['league_name'])
+		cursor = g.conn.execute('SELECT l.league_name FROM leagues l')
+		for row in cursor:
+			context['all_league_names'].append(row['league_name'])
 		return render_template('leagues/leagues.html', **context)
 
 def calculate_points(weights, values):
