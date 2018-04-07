@@ -352,10 +352,13 @@ def leagues_transactions():
 	if 'login' not in session:
 		return redirect('/users/login/')
 
+
+	cursor = g.conn.execute('SELECT l.league_id FROM leagues l WHERE l.league_name = %s', request.args['league_name'])
+	league_id = cursor.fetchone()['league_id']
 	context = {'logins': [], 'player_names': [], 'timestamps': [], 'types': []}
-	cursor1 = g.conn.execute('SELECT p.user_id FROM plays p WHERE p.league_id = %s', request.args['league_name'])
+	cursor1 = g.conn.execute('SELECT p.user_id FROM plays p WHERE p.league_id = %s', league_id)
 	for row1 in cursor1:
-		cursor2 = g.conn.execute('SELECT t.timestamp, t.type, u.login, p.player_name FROM transactions t, users u, players p WHERE t.user_id = u.user_id AND t.player_id = p.player_id AND t.user_id = %s ORDER BY t.timestamp DESC', row1['user_id'])
+		cursor2 = g.conn.execute('SELECT u.login, p.player_name, t.timestamp, t.type FROM users u, players p, transactions t WHERE u.user_id = t.user_id AND p.player_id = t.player_id AND u.user_id = %s ORDER BY t.timestamp DESC', row1['user_id'])
 		for row2 in cursor2:
 			context['logins'].append(row2['login'])
 			context['player_names'].append(row2['player_name'])
