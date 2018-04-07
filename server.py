@@ -118,7 +118,6 @@ def teams():
 		max_timestamp = cursor3.fetchone()[0]
 		cursor4 = g.conn.execute('''SELECT t.player_id FROM transactions t WHERE t.user_id = %s AND t.type = 'CLAIM' AND t.timestamp = %s''', user_id, max_timestamp)
 		row4 = cursor4.fetchone()
-		print('row4:', row4)
 		if row4:
 			cursor5 = g.conn.execute('SELECT * FROM players p WHERE p.player_id = %s', row4['player_id'])
 			row5 = cursor5.fetchone()
@@ -148,11 +147,9 @@ def budget(payroll, user_id):
 			print('TOO EXPENSIVE')
 			return False
 	return True
-	
 
 @app.route('/teams/claim/', methods=['POST'])
 def claim():
-
 	'''
 	POST: Process team claim of a player and redirect to team page
 	      Form should contain player_name key
@@ -183,16 +180,13 @@ def claim():
 				print(e)
 	return redirect('/teams/')
 
-
-
-
-
-#@app.route('/teams/waive/', methods=['POST'])
-#def waive():
-'''
+@app.route('/teams/waive/', methods=['POST'])
+def waive():
+	'''
 	POST: Process team waive of a player and redirect to team page
-'''
-'''	if 'login' not in session:
+	      Form should contain player_name key
+	'''
+	if 'login' not in session:
 		return redirect('/users/login/')
 
 	cursor = g.conn.execute('SELECT p.player_id FROM players p WHERE p.player_name = %s', request.form['player_name'])
@@ -200,11 +194,17 @@ def claim():
 	cursor = g.conn.execute('SELECT u.user_id FROM users u WHERE u.login = %s', session['login'])
 	user_id = cursor.fetchone()['user_id']
 	if claimed(user_id, player_id):
+		price = g.conn.execute('SELECT p.price FROM players p WHERE p.player_id = %s', player_id).fetchone()[0]
+		payroll = g.conn.execute('SELECT u.payroll FROM users u WHERE u.user_id = %s', user_id).fetchone()[0]
+		payroll -= price
+
 		cursor = g.conn.execute('SELECT MAX(transaction_id) FROM transactions')
-		max_transaction_id = cursor.fetchone()[0]
-'''
-#		g.conn.execute('''INSERT INTO transactions VALUES (%s, %s, %s, %s, 'WAIVE')''', max_transaction_id + 1, user_id, player_id,datetime.datetime.now().strftime('%Y-%m-%d'))
-#	return redirect('/teams/')
+		row = cursor.fetchone()
+		transaction_id = row[0] + 1 if row[0] is not None else 0
+		
+		g.conn.execute('''INSERT INTO transactions VALUES (%s, %s, %s, %s, 'WAIVE')''', transaction_id, user_id, player_id,datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+		g.conn.execute('UPDATE users SET payroll = %s WHERE user_id = %s', payroll, user_id)
+	return redirect('/teams/')
 
 
 @app.route('/players/batters/', methods=['GET'])
