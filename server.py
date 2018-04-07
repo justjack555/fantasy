@@ -62,10 +62,10 @@ def signup():
 			session.pop('login', None)
 		cursor = g.conn.execute('SELECT MAX(user_id) FROM users')
 		row = cursor.fetchone()
-		max_user_id = row[0] if row is not None else 0
+		user_id = row[0] + 1 if row[0] is not None else 0
 
 		try:
-			g.conn.execute('INSERT INTO users VALUES (%s, %s, %s, %s)', max_user_id + 1, request.form['login'], request.form['password'], 0)
+			g.conn.execute('INSERT INTO users VALUES (%s, %s, %s, %s)', user_id, request.form['login'], request.form['password'], 0)
 		except Exception as e:
 			print(e)
 			return render_template('sessions/signup.html')
@@ -156,14 +156,18 @@ def claim():
 	user_id = cursor.fetchone()['user_id']
 	if not claimed(user_id, player_id):
 		try:
-			g.conn.execute('INSERT INTO owns VALUES (%d, %s)', user_id, player_id)
+			g.conn.execute('INSERT INTO owns VALUES (%s, %s)', user_id, player_id)
 		except Exception as e:
-			print(e)
 			pass
 		cursor = g.conn.execute('SELECT MAX(transaction_id) FROM transactions')
-		max_transaction_id = cursor.fetchone()[0]
-
-		g.conn.execute('INSERT INTO transactions VALUES (%d, %d, %s, %s, CLAIM)', max_transaction_id + 1, user_id, player_id,datetime.datetime.now().strftime('%Y-%m-%d'))
+		row = cursor.fetchone()
+		transaction_id = row[0] + 1 if row[0] is not None else 0
+		print('max_transaction_id:', transaction_id)
+		print(type(transaction_id))
+		try:
+			g.conn.execute('''INSERT INTO transactions VALUES (%s, %s, %s, %s, 'CLAIM')''', transaction_id, user_id, player_id, datetime.datetime.now().strftime('%Y-%m-%d'))
+		except Exception as e:
+			print(e)
 	return redirect('/teams/')
 
 
@@ -185,7 +189,7 @@ def claim():
 		cursor = g.conn.execute('SELECT MAX(transaction_id) FROM transactions')
 		max_transaction_id = cursor.fetchone()[0]
 '''
-#		g.conn.execute('''INSERT INTO transactions VALUES (%d, %d, %s, %s, 'WAIVE')''', max_transaction_id + 1, user_id, player_id,datetime.datetime.now().strftime('%Y-%m-%d'))
+#		g.conn.execute('''INSERT INTO transactions VALUES (%s, %s, %s, %s, 'WAIVE')''', max_transaction_id + 1, user_id, player_id,datetime.datetime.now().strftime('%Y-%m-%d'))
 #	return redirect('/teams/')
 
 
@@ -350,7 +354,7 @@ def leagues_transactions():
 	max_payroll = cursor.fetchone()['max_payroll']
 	if payroll <= max_payroll:
 		try:
-			g.conn.execute('INSERT INTO plays VALUES (%d, %d)', session['login'], league_id)
+			g.conn.execute('INSERT INTO plays VALUES (%s, %s)', session['login'], league_id)
 		except Exception as e:
 			print(e)
 			pass
@@ -374,8 +378,8 @@ def leagues_create():
 		cursor = g.conn.execute('SELECT u.user_id FROM users u WHERE u.login = %s', session['login'])
 		user_id = cursor.fetchone()[0]
 		try:
-			g.conn.execute('INSERT INTO leagues VALUES (%d, %d, %s, %s, %d, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f)', max_league_id + 1, request.form['login'], request.form['league_name'], request.form['max_payroll'], request.form['atbats_weight'],  request.form['average_weight'], request.form['hits_weight'], request.form['b_walks_weight'], request.form['runs_weight'], request.form['rbi_weight'], request.form['homeruns_weight'], request.form['innings_weight'], request.form['era_weight'], request.form['p_walks_weight'], request.form['strikeouts_weight'], request.form['wins_weight'], request.form['losses_weight'], request.form['saves_weight'])
-			g.conn.execute('INSERT INTO plays VALUES (%d, %d)', session['login'], max_league_id + 1)
+			g.conn.execute('INSERT INTO leagues VALUES (%s, %s, %s, %s, %s, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f)', max_league_id + 1, request.form['login'], request.form['league_name'], request.form['max_payroll'], request.form['atbats_weight'],  request.form['average_weight'], request.form['hits_weight'], request.form['b_walks_weight'], request.form['runs_weight'], request.form['rbi_weight'], request.form['homeruns_weight'], request.form['innings_weight'], request.form['era_weight'], request.form['p_walks_weight'], request.form['strikeouts_weight'], request.form['wins_weight'], request.form['losses_weight'], request.form['saves_weight'])
+			g.conn.execute('INSERT INTO plays VALUES (%s, %s)', session['login'], max_league_id + 1)
 		except Exception as e:
 			print(e)
 			pass
