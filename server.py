@@ -128,7 +128,7 @@ def teams():
 
 def claimed(user_id, player_id):
 	players = []
-	cursor1 = g.conn.execute('SELECT o.player_id FROM own o WHERE o.user_id = %s', user_id)
+	cursor1 = g.conn.execute('SELECT o.player_id FROM owns o WHERE o.user_id = %s', user_id)
 	for row1 in cursor1:
 		cursor2 = g.conn.execute('SELECT MAX(timestamp) FROM transactions t WHERE t.user_id = %s AND t.player_id = %s', user_id, row1['player_id'])
 		max_timestamp = cursor2.fetchone()[0]
@@ -197,12 +197,13 @@ def batters():
 	if 'login' not in session:
 		return redirect('/users/login/')
 
-	search = ''
+	cursor = None
 	if 'player_name' in request.args:
-		search = ' AND p.player_name = %s' % (request.args['player_name'])
-
+		regex = '%' + request.args['player_name'].lower() + '%'
+		cursor = g.conn.execute('SELECT * FROM players p, batters b WHERE p.player_id = b.player_id AND lower(p.player_name) LIKE %s', regex)
+	else:
+		cursor = g.conn.execute('SELECT * FROM players p, batters b WHERE p.player_id = b.player_id')
 	context = {'player_names': [], 'positions': [], 'prices': [], 'atbats': [], 'averages': [], 'hits': [], 'b_walks': [], 'runs': [], 'rbis': [], 'homeruns': []}
-	cursor = g.conn.execute('SELECT * FROM players p, batters b WHERE p.player_id = b.player_id--%s', search)
 	for row in cursor:
 		context['player_names'].append(row['player_name'])
 		context['positions'].append(row['position'])
@@ -225,12 +226,14 @@ def pitchers():
 	if 'login' not in session:
 		return redirect('/users/login/')
 
-	search = ''
+	cursor = None
 	if 'player_name' in request.args:
-		search = ' AND p1.player_name = %s' % (request.args['player_name'])
-
+		regex = '%' + request.args['player_name'].lower() + '%'
+		cursor = g.conn.execute('SELECT * FROM players p1, pitchers p2 WHERE p1.player_id = p2.player_id AND lower(p1.player_name) LIKE %s', regex)
+	else:
+		cursor = g.conn.execute('SELECT * FROM players p1, pitchers p2 WHERE p1.player_id = p2.player_id')
+	
 	context = {'player_names': [], 'positions': [], 'prices': [], 'innings': [], 'eras': [], 'p_walks': [], 'strikeouts': [], 'wins': [], 'losses': [], 'saves': []}
-	cursor = g.conn.execute('SELECT * FROM players p1, pitchers p2 WHERE p1.player_id = p2.player_id --%s', search)
 	for row in cursor:
 		context['player_names'].append(row['player_name'])
 		context['positions'].append(row['position'])
