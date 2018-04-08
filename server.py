@@ -1,7 +1,7 @@
 #!/usr/bin/env python2.7
 '''
-python server.py [user] [password]
-http://localhost:8111
+python server.py [HOST] [PORT] [user] [password]
+http://localhost:[PORT]
 '''
 
 import os
@@ -11,7 +11,6 @@ from sqlalchemy import *
 from sqlalchemy.pool import NullPool
 from flask import Flask, request, render_template, g, redirect, Response, session
 
-#client_folder = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'client')
 app = Flask(__name__)
 app.secret_key = 'ABZr98j/3yX R~XHH!jmx]LWX/,7RT'
 DATABASEURI = 'postgresql://%s:%s@35.227.79.146/proj1part2' % (sys.argv[3], sys.argv[4])
@@ -299,18 +298,15 @@ def leagues():
 		
 		cursor2 = g.conn.execute('SELECT u.user_id, u.login FROM users u, plays p WHERE u.user_id = p.user_id AND p.league_id = %s', row1['league_id'])
 		for row2 in cursor2:
-			#for each user_id
 			context['logins'].append(row2['login'])
 			points = 0
 			cursor3 = g.conn.execute('SELECT o.player_id FROM owns o WHERE o.user_id = %s', row2['user_id'])
 			for row3 in cursor3:
-				#for each player_id
 				cursor4 = g.conn.execute('SELECT MAX(timestamp) FROM transactions t WHERE t.user_id = %s AND t.player_id = %s', row2['user_id'], row3['player_id'])
 				max_timestamp = cursor4.fetchone()[0]
 				cursor5 = g.conn.execute('''SELECT t.player_id FROM transactions t WHERE t.user_id = %s AND t.type = 'CLAIM' AND t.timestamp = %s''', row2['user_id'], max_timestamp)
 				row5 = cursor5.fetchone()
 				if row5:
-					#for each player currently on the team
 					cursor6 = g.conn.execute('SELECT * FROM batters b WHERE b.player_id = %s', row5['player_id'])
 					row6 = cursor6.fetchone()
 					if row6:
