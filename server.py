@@ -297,10 +297,10 @@ def leagues():
 		context['losses_weight'] = row1['losses_weight']
 		context['saves_weight'] = row1['saves_weight']
 		
-		cursor2 = g.conn.execute('SELECT p.user_id FROM plays p WHERE p.league_id = %s', row1['league_id'])
+		cursor2 = g.conn.execute('SELECT u.user_id, u.login FROM users u, plays p WHERE u.user_id = p.user_id AND p.league_id = %s', row1['league_id'])
 		for row2 in cursor2:
 			#for each user_id
-			context['logins'].append(row2['user_id'])
+			context['logins'].append(row2['login'])
 			points = 0
 			cursor3 = g.conn.execute('SELECT o.player_id FROM owns o WHERE o.user_id = %s', row2['user_id'])
 			for row3 in cursor3:
@@ -396,21 +396,24 @@ def leagues_create():
 	POST: Process league create and redirect to individual league page
 	      Form should contain keys for all league values except for league_id and user_id
 	'''
+	print('here')
 	if 'login' not in session:
 		return redirect('/users/login/')
 
 	if request.method == 'GET':
 		return render_template('leagues/leagues_create.html')
 	else:
+		print('post')
 		cursor = g.conn.execute('SELECT u.user_id FROM users u WHERE u.login = %s', session['login'])
 		user_id = cursor.fetchone()['user_id']
 		cursor = g.conn.execute('SELECT MAX(league_id) FROM leagues')
 		row = cursor.fetchone()
 		league_id = row[0] + 1 if row[0] is not None else 0
 		try:
-			g.conn.execute('INSERT INTO leagues VALUES (%s, %s, %s, %s, %s, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f)', max_league_id, request.form['login'], request.form['league_name'], request.form['max_payroll'], request.form['atbats_weight'],  request.form['average_weight'], request.form['hits_weight'], request.form['b_walks_weight'], request.form['runs_weight'], request.form['rbi_weight'], request.form['homeruns_weight'], request.form['innings_weight'], request.form['era_weight'], request.form['p_walks_weight'], request.form['strikeouts_weight'], request.form['wins_weight'], request.form['losses_weight'], request.form['saves_weight'])
+			g.conn.execute('INSERT INTO leagues VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)', league_id, user_id, request.form['league_name'], request.form['max_payroll'], request.form['atbats_weight'],  request.form['average_weight'], request.form['hits_weight'], request.form['b_walks_weight'], request.form['runs_weight'], request.form['rbi_weight'], request.form['homeruns_weight'], request.form['innings_weight'], request.form['era_weight'], request.form['p_walks_weight'], request.form['strikeouts_weight'], request.form['wins_weight'], request.form['losses_weight'], request.form['saves_weight'])
 			g.conn.execute('INSERT INTO plays VALUES (%s, %s)', user_id, league_id)
 		except Exception as e:
+			print('error')
 			print(e)
 			pass
 		return redirect('/leagues/')

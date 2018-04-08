@@ -3,8 +3,6 @@
 <div>
     <h3>Create League</h3>
     <form action="{{ url_for('leagues_create') }}" method=post class=add-league>
-        Login:<br>
-        <input type="text" name="login"><br>
         League Name:<br>
         <input type="text" name="league_name"><br>
         Max Payroll:<br>
@@ -27,7 +25,7 @@
         <input type="text" name="innings_weight"><br>
         ERA Weight:<br>
         <input type="text" name="era_weight"><br>
-        Walks Allowed Weight:<br>
+        Pitcher Walks Weight:<br>
         <input type="text" name="p_walks_weight"><br>
         Strikeouts Weight:<br>
         <input type="text" name="strikeouts_weight"><br>
