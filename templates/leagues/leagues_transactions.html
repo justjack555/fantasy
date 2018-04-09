@@ -18,9 +18,12 @@
         </tr>
         {% endfor %}
     </table><br>
-    <form action="{{ url_for('leagues') }}" method="get">
+    <!--<form action="{{ url_for('leagues') }}" method="get">
         <input type="submit" value="{{league}}"
-               name="league_name" /> Return to Leagues
-    </form>
+               name="league_name" /> - Return to League
+    </form> -->
+    <a href="{{ url_for('leagues') }}"><button>Return to My Leagues</button></a>
+
+
 </div>
 {% endblock %}

@@ -7,12 +7,17 @@
             <th>Player Name</th>
             <th>Position</th>
             <th>Price</th>
+            <th>Options</th>
         </tr>
         {% for name in player_names %}
         <tr>
             <td>{{name}}</td>
             <td>{{positions[loop.index0]}}</td>
             <td>{{prices[loop.index0]}}</td>
+            <td><form action="{{ url_for('waive') }}" method="post">
+                <input type="submit" value="{{name}}"
+                       name="player_name" /> - Waive
+            </form></td>
         </tr>
         {% endfor %}
     </table>

@@ -5,6 +5,7 @@ Web front-end for a fantasy baseball application.
 * Change leagues.html to use user_leagues_names and all_leagues_names (add option to add any league under all leagues)
 * Need claim option next to each player on pitchers page
 * Need waive option next to each player on team page
+* leagues_add breaks due to illegal access
 
 
 # TODO after bug fixes:

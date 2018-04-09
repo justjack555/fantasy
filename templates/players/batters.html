@@ -35,7 +35,7 @@
             <td>{{homeruns[loop.index0]}}</td>
             <td><form action="{{ url_for('claim') }}" method="post">
                 <input type="submit" value="{{name}}"
-                       name="player_name" />Claim
+                       name="player_name" /> - Claim
             </form></td>
         </tr>
         {% endfor %}

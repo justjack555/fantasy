@@ -14,7 +14,7 @@
             </form><!--<a href="{{ url_for('leagues') }}">{{league}}</a> --></td>
         </tr>
         {% endfor %}
-    </table>
+    </table><br>
     <a href="{{ url_for('leagues_create') }}"><button>Create New League</button></a>
     <h3>All Leagues</h3>
     <table border="1">
@@ -22,10 +22,20 @@
             <th>League Name</th>
             <th>Options</th>
         </tr>
+        {% for league in all_league_names %}
         <tr>
-            <td>Figure</td>
-            <td>Out</td>
+
+            <td><form action="{{ url_for('leagues') }}" method="get">
+                <input type="submit" value="{{league}}"
+                       name="league_name" />
+            </form><!--<a href="{{ url_for('leagues') }}">{{league}}</a> --></td>
+            <td><form action="{{ url_for('leagues_add') }}" method="post">
+                <input type="submit" value="{{league}}"
+                       name="league_name" /> - Add
+            </form></td>
         </tr>
-    </table>
+        {% endfor %}
+    </table><br>
+   <!-- <a href="{{ url_for('leagues_create') }}"><button>Add League</button></a> -->
 </div>
 {% endblock %}
