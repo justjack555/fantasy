@@ -12,3 +12,13 @@ Web front-end for a fantasy baseball application.
 * Check proper payroll update for waives when waive option is implemented
 * League add testing when leagues.html is fully implemented
 * League transaction testing when waive option is implemented and waive data is in database
+# Postgre-SQL account:
+jr3663
+
+# URL:
+http://<IP ADDRESS>:8111/
+
+# Description of implemented parts:
+
+# Interesting pages:
+ 
