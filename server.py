@@ -13,7 +13,7 @@ from flask import Flask, request, render_template, g, redirect, Response, sessio
 
 app = Flask(__name__)
 app.secret_key = 'ABZr98j/3yX R~XHH!jmx]LWX/,7RT'
-DATABASEURI = 'postgresql://%s:%s@35.227.79.146/proj1part2' % (sys.argv[3], sys.argv[4])
+DATABASEURI = 'postgresql://jr3663:JustJackForrest555@35.227.79.146/proj1part2'
 engine = create_engine(DATABASEURI)
 
 @app.before_request
@@ -376,8 +376,9 @@ def leagues_add():
 	cursor = g.conn.execute('SELECT u.payroll FROM users u WHERE u.user_id = %s', user_id)
 	payroll = cursor.fetchone()[0]
 	cursor = g.conn.execute('SELECT l.league_id, l.max_payroll FROM leagues l WHERE l.league_name = %s', request.form['league_name'])
-	league_id = cursor.fetchone()['league_id']
-	max_payroll = cursor.fetchone()['max_payroll']
+	row = cursor.fetchone()
+	league_id = row['league_id']
+	max_payroll = row['max_payroll']
 	if payroll <= max_payroll:
 		try:
 			g.conn.execute('INSERT INTO plays VALUES (%s, %s)', user_id, league_id)
