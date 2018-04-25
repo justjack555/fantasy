@@ -7,6 +7,7 @@ http://localhost:[PORT]
 import os
 import sys
 import datetime
+import random
 from sqlalchemy import *
 from sqlalchemy.pool import NullPool
 from flask import Flask, request, render_template, g, redirect, Response, session
@@ -41,6 +42,9 @@ def load_arrays():
 	'''
 	Setup a database connection that can be used throughout the request.
 	'''
+
+	random.seed()
+
 	metadata = MetaData()
 	players_tbl = Table('players', metadata,
 						Column('player_id', String(20) , primary_key=True),
@@ -56,18 +60,24 @@ def load_arrays():
 		return
 
 	# SELECT TO GET EACH PLAYER's player_id INTO ARRAY
+	cursor = new_conn.execute('SELECT p.player_id FROM players p')
 
 	# FOR EACH ENTRY IN ARRAY
+	for row in cursor:
 		# RANDOMLY ADD YEARS TO PLAYER_YEARS ARRAY
-		# UPDATE PLAYER'S years_played ATTRIBUTE VALUE
+		player_years = []
+		for yr in range(2000, 2017):
+			if random.randint(0, 1) == 1:
+				player_years.append(yr)
 
-	stmt = players_tbl.update().where(players_tbl.c.player_name=="Fernando Abad").values(years_played=[2005, 2007])
-	try:
-		new_conn.execute(stmt)
-		#	new_conn.execute('UPDATE players SET years_played = array([2005, 2007]) WHERE player_name = %s')
-	except Exception as e:
-		print(e)
-		return
+		# UPDATE PLAYER'S years_played ATTRIBUTE VALUE
+		stmt = players_tbl.update().where(players_tbl.c.player_id==row['player_id']).values(years_played=player_years)
+		try:
+			new_conn.execute(stmt)
+			#	new_conn.execute('UPDATE players SET years_played = array([2005, 2007]) WHERE player_name = %s')
+		except Exception as e:
+			print(e)
+			return
 
 	try:
 		new_conn.close()
